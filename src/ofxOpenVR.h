@@ -5,15 +5,6 @@
 #include "CGLRenderModel.h"
 
 //--------------------------------------------------------------
-//--------------------------------------------------------------
-enum class ControllerRole
-{
-	Left = 0,
-	Right = 1,
-	Unknown = 3
-};
-
-//--------------------------------------------------------------
 enum class EventType
 {
 	ButtonPress = 0,
@@ -37,7 +28,7 @@ enum class ButtonType
 class ofxOpenVRControllerEventArgs : public ofEventArgs
 {
 public:
-	ControllerRole controllerRole;
+	vr::ETrackedControllerRole controllerRole;
 	ButtonType buttonType;
 	EventType eventType;
 	float analogInput_xAxis;
@@ -66,6 +57,7 @@ public:
 
 	glm::mat4x4 getControllerPose(vr::ETrackedControllerRole nController);
 	bool isControllerConnected(vr::ETrackedControllerRole nController);
+	glm::vec2 getTrackpadPosition(vr::ETrackedControllerRole);
 
 	void setDrawControllers(bool bDrawControllers);
 	void setClearColor(ofFloatColor color);
@@ -157,6 +149,9 @@ private:
 	int _rightControllerDeviceID;
 	glm::mat4x4 _mat4LeftControllerPose;
 	glm::mat4x4 _mat4RightControllerPose;
+
+	glm::vec2 _leftControllerTrackpad;
+	glm::vec2 _rightControllerTrackpad;
 
 	bool _bDrawControllers;
 	ofVboMesh _controllersVbo;

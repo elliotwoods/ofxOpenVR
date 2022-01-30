@@ -264,6 +264,20 @@ bool ofxOpenVR::isControllerConnected(vr::ETrackedControllerRole nController)
 }
 
 //--------------------------------------------------------------
+glm::vec2 ofxOpenVR::getTrackpadPosition(vr::ETrackedControllerRole nController)
+{
+	switch (nController) {
+	case vr::ETrackedControllerRole::TrackedControllerRole_LeftHand:
+		return this->_leftControllerTrackpad;
+	case vr::ETrackedControllerRole::TrackedControllerRole_RightHand:
+		return this->_rightControllerTrackpad;
+	default:
+		return glm::vec2();
+	}
+
+}
+
+//--------------------------------------------------------------
 void ofxOpenVR::setDrawControllers(bool bDrawControllers)
 {
 	_bDrawControllers = bDrawControllers;
@@ -790,7 +804,7 @@ void ofxOpenVR::updateDevicesMatrixPose()
 					break;
 			}
 
-			// Store controllers' ID and matrix. 
+			// Store controllers' ID, matrix
 			if (_pHMD->GetTrackedDeviceClass(nDevice) == vr::TrackedDeviceClass_Controller) {
 				_iTrackedControllerCount += 1;
 
@@ -810,6 +824,27 @@ void ofxOpenVR::updateDevicesMatrixPose()
 	if (_rTrackedDevicePose[vr::k_unTrackedDeviceIndex_Hmd].bPoseIsValid)
 	{
 		_mat4HMDPose = glm::inverse(_rmat4DevicePose[vr::k_unTrackedDeviceIndex_Hmd]);
+	}
+
+	// Get trackpad states
+	{
+		{
+			vr::VRControllerState_t controllerState;
+			vr::VRSystem()->GetControllerState(_leftControllerDeviceID
+				, &controllerState
+				, sizeof(controllerState));
+			this->_leftControllerTrackpad.x = controllerState.rAxis[0].x;
+			this->_leftControllerTrackpad.y = controllerState.rAxis[0].y;
+		}
+		
+		{
+			vr::VRControllerState_t controllerState;
+			vr::VRSystem()->GetControllerState(_rightControllerDeviceID
+				, &controllerState
+				, sizeof(controllerState));
+			this->_rightControllerTrackpad.x = controllerState.rAxis[0].x;
+			this->_rightControllerTrackpad.y = controllerState.rAxis[0].y;
+		}
 	}
 
 	// Aad more info to the debug panel.
@@ -843,15 +878,7 @@ void ofxOpenVR::processVREvent(const vr::VREvent_t & event)
 			ofxOpenVRControllerEventArgs _args;
 
 			// Controller's role.
-			if (_pHMD->GetControllerRoleForTrackedDeviceIndex(event.trackedDeviceIndex) == vr::TrackedControllerRole_LeftHand) {
-				_args.controllerRole = ControllerRole::Left;
-			}
-			else if (_pHMD->GetControllerRoleForTrackedDeviceIndex(event.trackedDeviceIndex) == vr::TrackedControllerRole_RightHand) {
-				_args.controllerRole = ControllerRole::Right;
-			}
-			else {
-				_args.controllerRole = ControllerRole::Unknown;
-			}
+			_args.controllerRole = _pHMD->GetControllerRoleForTrackedDeviceIndex(event.trackedDeviceIndex);
 
 			// Get extra data about the controller.
 			vr::VRControllerState_t pControllerState;

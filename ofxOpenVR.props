@@ -22,6 +22,9 @@ if errorlevel 1 echo Copy successful else exit %errorlevel%
 robocopy "$(OF_ROOT)/addons/ofxOpenVR/libs/OpenVR/bin/win32/" "$(ProjectDir)bin/" "*.dll" /njs /njh /np /fp /bytes
       if errorlevel 1 exit 0 else exit %errorlevel%</Command>
     </PostBuildEvent>
+    <ClCompile>
+      <AdditionalIncludeDirectories>..\..\..\addons\ofxOpenVR\libs\OpenVR\headers;C:\dev\openFrameworks\addons\ofxOpenVR\libs\OpenVR\headers;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+    </ClCompile>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Platform)'=='x64'">
     <Lib>
